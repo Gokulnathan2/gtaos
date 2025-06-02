@@ -1,0 +1,36 @@
+name: gtaos
+description: gtaos
+
+version: 3.0.1+33
+
+environment:
+  sdk: '>=3.5.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  bot_toast: ^4.0.3
+  cupertino_icons: ^1.0.2
+  easy_web_view: ^2.1.0
+  flutter_animarker: ^3.2.0
+  geolocator: ^13.0.2
+  get_storage: ^2.1.1
+  google_maps_flutter: ^2.10.0
+  google_maps_flutter_web: ^0.5.10
+  http: ^1.2.2
+  image_picker: ^1.1.2
+  intl: ^0.19.0
+  local_auth: ^2.1.6
+  timezone: ^0.10.0
+  carousel_slider: ^5.0.0
+  lottie: ^3.3.1
+  animate_do: ^4.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - asset/
