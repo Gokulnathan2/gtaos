@@ -12,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
     
-  await AppConfig.loadDomain(); // Load saved domain
+  // await AppConfig.loadDomain(); // Load saved domain
   tz.initializeTimeZones();
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.blue));

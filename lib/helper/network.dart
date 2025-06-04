@@ -793,18 +793,18 @@ class NetworkCaller {
   }
 }
 class AppConfig {
-  static String _domain = "https://app.gleantech.com"; // default domain
+  // static String _domain = "https://app.gleantech.com"; // default domain
   
-  static String get domain => _domain;
+  // static String get domain => _domain;
   
-  static set domain(String value) {
-    _domain = value;
-    // You might want to persist this to GetStorage or other storage
-    GetStorage().write('app_domain', value);
-  }
-    static final _storage = GetStorage();
+  // static set domain(String value) {
+  //   _domain = value;
+  //   // You might want to persist this to GetStorage or other storage
+  //   GetStorage().write('app_domain', value);
+  // }
+     static final _storage = GetStorage();
   
-  // static String get domain => _storage.read('app_domain') ?? "https://app.gleantech.com";
+  static String get domain => _storage.read('app_domain') ?? "app";
   
   static Future<void> setDomain(String newDomain) async {
     if (!newDomain.startsWith('http')) {
@@ -817,10 +817,10 @@ class AppConfig {
   static Future<void> clearDomain() async {
     await _storage.remove('app_domain');
   }
-  static Future<void> loadDomain() async {
-    // Load from storage if available
-    _domain = GetStorage().read('app_domain') ?? "https://app.gleantech.com";
-  }
+  // static Future<void> loadDomain() async {
+  //   // Load from storage if available
+  //   _domain = GetStorage().read('app_domain') ?? "https://app.gleantech.com";
+  // }
 }
 
 final networkCaller = NetworkCaller();

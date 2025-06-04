@@ -85,16 +85,37 @@ final TextEditingController _domainController = TextEditingController();
     _email.text = email;
     _password.text = pass;
   }
+// Future<void> _saveDomain() async {
+//     if (_domainController.text.trim().isNotEmpty) {
+//       await AppConfig.setDomain(_domainController.text.trim());
+//       setState(() {
+//         _showDomainField = false;
+//       });
+//       BotToast.showText(text: "Domain updated successfully");
+//     }
+//   }
 Future<void> _saveDomain() async {
-    if (_domainController.text.trim().isNotEmpty) {
-      await AppConfig.setDomain(_domainController.text.trim());
-      setState(() {
-        _showDomainField = false;
-      });
-      BotToast.showText(text: "Domain updated successfully");
-    }
+  final domainPart = _domainController.text.trim();
+  if (domainPart.isEmpty) {
+    BotToast.showText(text: "Please enter a domain");
+    return;
   }
 
+  // Construct the full URL
+  final fullDomain = "https://$domainPart.gleantech.com";
+  
+  // Validate the URL format
+  if (!fullDomain.startsWith('https://') || !fullDomain.contains('.')) {
+    BotToast.showText(text: "Invalid domain format");
+    return;
+  }
+
+  await AppConfig.setDomain(fullDomain);
+  setState(() {
+    _showDomainField = false;
+  });
+  BotToast.showText(text: "Domain updated successfully");
+}
   validateLogin() async {
     user = networkCaller.getUser();
     loggedOut = user == null;
@@ -564,56 +585,61 @@ Widget uploadImage() {
                             ),
                           ),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                           if (_showDomainField) ...[
-                        CustomTextInputField(
-                          controller: _domainController,
-                          labelColor: Colors.black,
-                          fillColor: Colors.white,
-                          title: "Server URL",
-                          hintText: "https://yourdomain.com",
-                          inputType: TextInputType.url,
-                          borderRadius: 14,
-                          suffix: IconButton(
-                            icon: Icon(Icons.save, color: Appcolors.primary2),
-                            onPressed: _saveDomain,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                      ] else ...[
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _showDomainField = true;
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.link, size: 20, color: Colors.grey.shade600),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    AppConfig.domain,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Icon(Icons.edit, size: 18, color: Appcolors.primary2),
-                              ],
-                            ),
-                          ),
-                        ),
-                         SizedBox(height: 10),
-                      ],
+                         if (_showDomainField) ...[
+  CustomTextInputField(
+    controller: _domainController,
+    labelColor: Colors.black,
+    fillColor: Colors.white,
+    title: "Server Domain",
+    hintText: "app",
+    inputType: TextInputType.text,
+    borderRadius: 14,
+    suffix: IconButton(
+      icon: Icon(Icons.save, color: Appcolors.primary2),
+      onPressed: _saveDomain,
+    ),
+  ),
+  SizedBox(height: 10),
+] else ...[
+  GestureDetector(
+    onTap: () {
+      setState(() {
+        _showDomainField = true;
+
+        // Extract just the subdomain part when showing the field
+        final domainParts = AppConfig.domain.replaceFirst('https://', '').split('.');
+      print(domainParts.first);
+        _domainController.text = domainParts.first;
+      });
+    },
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.link, size: 20, color: Colors.grey.shade600),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              AppConfig.domain,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade700,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Icon(Icons.edit, size: 18, color: Appcolors.primary2),
+        ],
+      ),
+    ),
+  ),
+  SizedBox(height: 10),
+],
                       // SizedBox(height: 20),
                 
                           CustomTextInputField(
