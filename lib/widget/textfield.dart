@@ -130,6 +130,7 @@ class _CustomTextInputFieldState extends State<CustomTextInputField> {
                         maxLength: widget.maxLength,
                         readOnly: widget.readOnly,
                         obscureText: _isObscureText,
+                       
                         textCapitalization: TextCapitalization.sentences,
                         onTap: widget.onTap ?? () {},
                         maxLines: widget.type == TextFieldType.Password
@@ -155,6 +156,7 @@ class _CustomTextInputFieldState extends State<CustomTextInputField> {
                           decoration: InputDecoration(
                               fillColor: Colors.white,
                       isDense: true,
+                       suffix : widget.suffix,
                       // hintText: "Message" ,
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),

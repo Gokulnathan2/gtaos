@@ -48,7 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   _SupportState _supportState = _SupportState.unknown;
-
+final TextEditingController _domainController = TextEditingController();
+  bool _showDomainField = false; // To toggle domain field visibility
   @override
   void initState() {
     super.initState();
@@ -78,9 +79,20 @@ class _LoginScreenState extends State<LoginScreen> {
       email = "ceo@gleantech.com";
       pass = "Ceogts@24";
     }
-
+  _domainController.text = AppConfig.domain;
+    // Only show domain field if in debug mode or no domain is set
+    _showDomainField = kDebugMode || AppConfig.domain.isEmpty;
     _email.text = email;
     _password.text = pass;
+  }
+Future<void> _saveDomain() async {
+    if (_domainController.text.trim().isNotEmpty) {
+      await AppConfig.setDomain(_domainController.text.trim());
+      setState(() {
+        _showDomainField = false;
+      });
+      BotToast.showText(text: "Domain updated successfully");
+    }
   }
 
   validateLogin() async {
@@ -201,6 +213,8 @@ Widget uploadImage() {
                                 onPressed: () async {
                                   Navigator.pop(context);
                                   await networkCaller.removeUser();
+                                    await AppConfig.clearDomain();
+    await networkCaller.removeUser();
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(builder: (_) => LoginScreen()),
@@ -430,6 +444,9 @@ Widget uploadImage() {
                
                 children: <Widget>[
                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                  // Add domain configuration section
+             
+              
                   Container( // Wrapped the content in a Card
                     // elevation: 8,
                     // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -483,6 +500,7 @@ Widget uploadImage() {
                                       ),
                                     ),
                                   ),
+                                  
                                   Row(
                                     children: [
                                       Expanded(
@@ -546,6 +564,58 @@ Widget uploadImage() {
                             ),
                           ),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                           if (_showDomainField) ...[
+                        CustomTextInputField(
+                          controller: _domainController,
+                          labelColor: Colors.black,
+                          fillColor: Colors.white,
+                          title: "Server URL",
+                          hintText: "https://yourdomain.com",
+                          inputType: TextInputType.url,
+                          borderRadius: 14,
+                          suffix: IconButton(
+                            icon: Icon(Icons.save, color: Appcolors.primary2),
+                            onPressed: _saveDomain,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                      ] else ...[
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showDomainField = true;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.link, size: 20, color: Colors.grey.shade600),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    AppConfig.domain,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Icon(Icons.edit, size: 18, color: Appcolors.primary2),
+                              ],
+                            ),
+                          ),
+                        ),
+                         SizedBox(height: 10),
+                      ],
+                      // SizedBox(height: 20),
+                
                           CustomTextInputField(
                             controller: _email,
                             labelColor: Colors.black,
@@ -755,3 +825,4 @@ enum _SupportState {
   supported,
   unsupported,
 }
+

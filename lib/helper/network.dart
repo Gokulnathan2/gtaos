@@ -26,43 +26,108 @@ import 'package:gtaos/model/updatepac.dart';
 import 'package:gtaos/model/user.dart';
 
 class NetworkCaller {
-  static const addPac = "$withSuffix/addPac";
-  static const adminChangePassword = "$withSuffixAdmin/adminChangePassword";
-  static const adminDashbord = "$withSuffixAdmin/pacListDashboard";
-  static const adminLoginUrl = "$withSuffixAdmin/adminLogin";
-  static const attendance = "$domain/attendance";
-  static const attendanceStatusUrl = "$withSuffix/attendanceStatus";
-  static const attendanceUrl = "$withSuffix/attendanceLogout";
-  static const checkInStatusUrl = "$withSuffix/getCheckinStatus";
-  static const checkInUrl = "$withSuffix/checkIn";
-  static const deletePacurl = "$withSuffix/pacDelete";
-  static const domain = "https://app.gleantech.com";
-  static const editPac = "$withSuffix/editPac";
-  static const empChangePassword = "$withSuffix/empChangePassword";
-  static const empDashbord = "$withSuffix/pacListDashboard";
-  static const empForgotPasswordUrl = "$withSuffix/empForgotPassword";
-  static const employeeLoginUrl = "$withSuffix/employeeLogin";
-  static const employeeTaskListUrl = "$withSuffix/employeeTaskList";
-  static const forgotPasswordAdminUrl = "$withSuffixAdmin/adminForgotPassword";
-  static const getAttendence = "$withSuffixAdmin/getAttendence";
-  static const getPacUrl = "$withSuffix/getPac";
-  static const getSigninStatusUrl = "$withSuffix/getAttendanceStatus";
-  static const homeUrl = "$domain/index.php?route=employee/dashboard";
-  static const logOutUrl = "$domain/employeelogout";
-  static const mainUrl = "$domain/employee";
-  static const pacHistory = "$withSuffix/pacHistory";
-  static const pacListReportUrl = "$withSuffixAdmin/pacListReport";
-  static const paclist = "$withSuffix/paclist";
-  static const productList = "$withSuffix/productList";
-  static const deleteProductUrl = "$withSuffix/productDelete";
-  static const getProductUrl = "$withSuffix/getProduct";
-  static const projectList = "$withSuffix/projectList";
-  static const statuslist = "$withSuffix/statusList";
-  static const updatePacUrl = "$withSuffix/updatePac";
-  static const addProduct = "$withSuffix/addProduct";
-  static const editProductUrl = "$withSuffix/editProduct";
-  static const withSuffix = "$domain/index.php?route=extension/app/account";
-  static const withSuffixAdmin = "$domain/index.php?route=extension/app/admin";
+  static String _currentDomain = "";
+  static final Map<String, String> _urlCache = {};
+
+  static String _getUrl(String key) {
+    if (_currentDomain != AppConfig.domain) {
+      _urlCache.clear();
+      _currentDomain = AppConfig.domain;
+    }
+    
+    return _urlCache.putIfAbsent(key, () {
+      switch (key) {
+        case 'addPac': return "$withSuffix/addPac";
+        case 'adminChangePassword': return "$withSuffixAdmin/adminChangePassword";
+        // Add all other cases...
+        default: throw Exception("Unknown URL key: $key");
+      }
+    });
+  }
+
+  static String get addPac => _getUrl('addPac');
+  static String get adminChangePassword => _getUrl('adminChangePassword');
+  // static const addPac = "$withSuffix/addPac";
+  // static const adminChangePassword = "$withSuffixAdmin/adminChangePassword";
+  // static const adminDashbord = "$withSuffixAdmin/pacListDashboard";
+  // static const adminLoginUrl = "$withSuffixAdmin/adminLogin";
+  // static const attendance = "$domain/attendance";
+  // static const attendanceStatusUrl = "$withSuffix/attendanceStatus";
+  // static const attendanceUrl = "$withSuffix/attendanceLogout";
+  // static const checkInStatusUrl = "$withSuffix/getCheckinStatus";
+  // static const checkInUrl = "$withSuffix/checkIn";
+  // static const deletePacurl = "$withSuffix/pacDelete";
+  // // static const domain = "https://app.gleantech.com";
+  // static String get domain => AppConfig.domain;
+  
+  // static String get withSuffix => "$domain/index.php?route=extension/app/account";
+  // static String get withSuffixAdmin => "$domain/index.php?route=extension/app/admin";
+  // static const editPac = "$withSuffix/editPac";
+  // static const empChangePassword = "$withSuffix/empChangePassword";
+  // static const empDashbord = "$withSuffix/pacListDashboard";
+  // static const empForgotPasswordUrl = "$withSuffix/empForgotPassword";
+  // static const employeeLoginUrl = "$withSuffix/employeeLogin";
+  // static const employeeTaskListUrl = "$withSuffix/employeeTaskList";
+  // static const forgotPasswordAdminUrl = "$withSuffixAdmin/adminForgotPassword";
+  // static const getAttendence = "$withSuffixAdmin/getAttendence";
+  // static const getPacUrl = "$withSuffix/getPac";
+  // static const getSigninStatusUrl = "$withSuffix/getAttendanceStatus";
+  // static const homeUrl = "$domain/index.php?route=employee/dashboard";
+  // static const logOutUrl = "$domain/employeelogout";
+  // static const mainUrl = "$domain/employee";
+  // static const pacHistory = "$withSuffix/pacHistory";
+  // static const pacListReportUrl = "$withSuffixAdmin/pacListReport";
+  // static const paclist = "$withSuffix/paclist";
+  // static const productList = "$withSuffix/productList";
+  // static const deleteProductUrl = "$withSuffix/productDelete";
+  // static const getProductUrl = "$withSuffix/getProduct";
+  // static const projectList = "$withSuffix/projectList";
+  // static const statuslist = "$withSuffix/statusList";
+  // static const updatePacUrl = "$withSuffix/updatePac";
+  // static const addProduct = "$withSuffix/addProduct";
+  // static const editProductUrl = "$withSuffix/editProduct";
+  // static const withSuffix = "$domain/index.php?route=extension/app/account";
+  // static const withSuffixAdmin = "$domain/index.php?route=extension/app/admin";
+// Domain configuration
+  static String get domain => AppConfig.domain;
+  static String get withSuffix => "$domain/index.php?route=extension/app/account";
+  static String get withSuffixAdmin => "$domain/index.php?route=extension/app/admin";
+
+  // Change all const to static final
+  // static final addPac = "$withSuffix/addPac";
+  // static final adminChangePassword = "$withSuffixAdmin/adminChangePassword";
+  static final adminDashbord = "$withSuffixAdmin/pacListDashboard";
+  static final adminLoginUrl = "$withSuffixAdmin/adminLogin";
+  static final attendance = "$domain/attendance";
+  static final attendanceStatusUrl = "$withSuffix/attendanceStatus";
+  static final attendanceUrl = "$withSuffix/attendanceLogout";
+  static final checkInStatusUrl = "$withSuffix/getCheckinStatus";
+  static final checkInUrl = "$withSuffix/checkIn";
+  static final deletePacurl = "$withSuffix/pacDelete";
+  static final editPac = "$withSuffix/editPac";
+  static final empChangePassword = "$withSuffix/empChangePassword";
+  static final empDashbord = "$withSuffix/pacListDashboard";
+  static final empForgotPasswordUrl = "$withSuffix/empForgotPassword";
+  static final employeeLoginUrl = "$withSuffix/employeeLogin";
+  static final employeeTaskListUrl = "$withSuffix/employeeTaskList";
+  static final forgotPasswordAdminUrl = "$withSuffixAdmin/adminForgotPassword";
+  static final getAttendence = "$withSuffixAdmin/getAttendence";
+  static final getPacUrl = "$withSuffix/getPac";
+  static final getSigninStatusUrl = "$withSuffix/getAttendanceStatus";
+  static final homeUrl = "$domain/index.php?route=employee/dashboard";
+  static final logOutUrl = "$domain/employeelogout";
+  static final mainUrl = "$domain/employee";
+  static final pacHistory = "$withSuffix/pacHistory";
+  static final pacListReportUrl = "$withSuffixAdmin/pacListReport";
+  static final paclist = "$withSuffix/paclist";
+  static final productList = "$withSuffix/productList";
+  static final deleteProductUrl = "$withSuffix/productDelete";
+  static final getProductUrl = "$withSuffix/getProduct";
+  static final projectList = "$withSuffix/projectList";
+  static final statuslist = "$withSuffix/statusList";
+  static final updatePacUrl = "$withSuffix/updatePac";
+  static final addProduct = "$withSuffix/addProduct";
+  static final editProductUrl = "$withSuffix/editProduct";
 
   AttendanceChecker? attendanceChecker;
   final box = GetStorage();
@@ -715,6 +780,7 @@ class NetworkCaller {
       }
     });
   }
+  
 
   Future<LatLongger?> getLiveLocation(eid) async {
     var currentUser = getUser();
@@ -726,5 +792,37 @@ class NetworkCaller {
     return null;
   }
 }
+class AppConfig {
+  static String _domain = "https://app.gleantech.com"; // default domain
+  
+  static String get domain => _domain;
+  
+  static set domain(String value) {
+    _domain = value;
+    // You might want to persist this to GetStorage or other storage
+    GetStorage().write('app_domain', value);
+  }
+    static final _storage = GetStorage();
+  
+  // static String get domain => _storage.read('app_domain') ?? "https://app.gleantech.com";
+  
+  static Future<void> setDomain(String newDomain) async {
+    if (!newDomain.startsWith('http')) {
+      newDomain = 'https://$newDomain';
+    }
+    await _storage.write('app_domain', newDomain);
+    networkCaller.reset(); // Reset network caller state
+  }
+  
+  static Future<void> clearDomain() async {
+    await _storage.remove('app_domain');
+  }
+  static Future<void> loadDomain() async {
+    // Load from storage if available
+    _domain = GetStorage().read('app_domain') ?? "https://app.gleantech.com";
+  }
+}
 
 final networkCaller = NetworkCaller();
+
+
