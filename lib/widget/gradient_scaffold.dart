@@ -66,6 +66,7 @@ class GradientScaffold extends StatelessWidget {
         children: [
           // 🌈 Fullscreen Gradient Background
           Container(
+            // padding: EdgeInsets.fromLTRB(0, 10, 0, ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -77,18 +78,23 @@ class GradientScaffold extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-           
+           child:  Image.asset(
+                            'asset/Login-Screen-TOP.png',
+                            width: MediaQuery.of(context).size.width ,
+                            height: MediaQuery.of(context).size.height /2.5,
+                            fit: BoxFit.cover,
+                          ),
           ),
 
           // 🧊 Glassmorphism effect
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              color: Colors.white.withOpacity(0.05),
-               // Adjust opacity for glass look
-            ),
+          // BackdropFilter(
+          //   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          //   child: Container(
+          //     color: Colors.white.withOpacity(0.05),
+          //      // Adjust opacity for glass look
+          //   ),
              
-          ),
+          // ),
 
           // 🔒 Safe content area
           SafeArea(

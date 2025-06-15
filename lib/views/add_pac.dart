@@ -35,29 +35,37 @@ class _ManagePadState extends State<ManagePad> {
   var messageCon = TextEditingController();
   var dateCon = TextEditingController();
   var seed = 1000000000;
-  @override
-  void initState() {
-    super.initState();
-    addpac = Addpac(
-        ref_no: widget.ref ?? "",
-        project_name: "",
-        project_id: "",
-        task_name: "",
-        task_date: "",
-        task_status: "",
-        task_status_id: "",
-        message: "");
-    if (widget.ref == null) {
-      addpac.ref_no = refCon.text;
-      refCon.text = "EM" + (Random().nextInt(seed) + seed).toString();
-    } else {
-      refCon.text = widget.ref!;
-    }
-     WidgetsBinding.instance.addPostFrameCallback((_) {
+ @override
+void initState() {
+  super.initState();
+
+  final now = DateTime.now();
+  final formattedNow = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+  messageCon.text = formattedNow; // Prepopulate message with current date
+
+  addpac = Addpac(
+    ref_no: widget.ref ?? "",
+    project_name: "",
+    project_id: "",
+    task_name: "",
+    task_date: "",
+    task_status: "",
+    task_status_id: "",
+    message: messageCon.text, // assign same value to model initially
+  );
+
+  if (widget.ref == null) {
+    addpac.ref_no = refCon.text;
+    refCon.text = "EM" + (Random().nextInt(seed) + seed).toString();
+  } else {
+    refCon.text = widget.ref!;
+  }
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
     getdata();
   });
-    // getdata();
-  }
+}
+
 
   late Addpac addpac;
   StatusList? statusList;

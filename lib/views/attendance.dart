@@ -88,161 +88,235 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     if (mounted) setState(() {});
   }
 
-  getbody() {
-    if (attendanceData == null)
-      return Center(
-          child: CircularProgressIndicator(backgroundColor: Colors.orange));
-    else {
-      if (attendanceData!.data!.isEmpty)
-        return RefreshIndicator(
-          onRefresh: () {
-            return getAsync();
-          },
-          child: Column(
-            children: [
-              ListTile(
-                onTap: () async {
-                  var dt = await showDatePicker(
-                      context: context,
-                      initialDate: dateTime,
-                      firstDate: DateTime.now().subtract(Duration(days: 1000)),
-                      lastDate: DateTime.now().add(Duration(days: 1000)));
-                  if (dt != null) {
-                    dateTime = dt;
-                    LoadingOverlay.show(context);
-                    await getAsync();
-                    timer?.cancel();
-                    LoadingOverlay.dismiss();
-
-                    setState(() {});
-                  }
-                },
-                trailing: const Icon(Icons.calendar_month),
-                title: Text("Filter"),
-                subtitle: Text(DateFormat("yyyy-MM-dd").format(dateTime)),
-              ),
-              if (selectedEmployee != null)
-                ListTile(
-                  onTap: () async {
-                    selectedEmployee = null;
-                    LoadingOverlay.show(context);
-                    await getAsync();
-                    startTImer();
-                    LoadingOverlay.dismiss();
-                    setState(() {});
-                  },
-                  trailing: const Icon(Icons.clear),
-                  title: Text("Filtered Employee"),
-                  subtitle: Text(selectedEmployee!.name),
+  Widget _buildDateFilter() {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.all(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          final dt = await showDatePicker(
+            context: context,
+            initialDate: dateTime,
+            firstDate: DateTime.now().subtract(const Duration(days: 1000)),
+            lastDate: DateTime.now().add(const Duration(days: 1000)),
+            builder: (context, child) {
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.light(
+                    primary: Theme.of(context).colorScheme.primary,
+                    onPrimary: Theme.of(context).colorScheme.onPrimary,
+                    surface: Theme.of(context).colorScheme.surface,
+                    onSurface: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-              Spacer(),
-              Center(child: Text("No Attendance")),
-              Spacer(),
+                child: child!,
+              );
+            },
+          );
+          if (dt != null) {
+            setState(() => dateTime = dt);
+            // LoadingOverlay.show(context);
+            await getAsync();
+            timer?.cancel();
+            // LoadingOverlay.dismiss();
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, 
+                color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Date',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat("MMMM d, yyyy").format(dateTime),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             ],
           ),
-        );
-      else
-        return Column(
-          children: [
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    onTap: () async {
-                      var dt = await showDatePicker(
-                          context: context,
-                          initialDate: dateTime,
-                          firstDate:
-                              DateTime.now().subtract(Duration(days: 1000)),
-                          lastDate: DateTime.now().add(Duration(days: 1000)));
-                      if (dt != null) {
-                        dateTime = dt;
-                        LoadingOverlay.show(context);
-                        await getAsync();
-                        timer?.cancel();
+        ),
+      ),
+    );
+  }
 
-                        LoadingOverlay.dismiss();
-
-                        setState(() {});
-                      }
-                    },
-                    trailing: const Icon(Icons.calendar_month),
-                    title: Text("Filter"),
-                    subtitle: Text(DateFormat("yyyy-MM-dd").format(dateTime)),
-                  ),
-                  if (selectedEmployee != null)
-                    ListTile(
-                      onTap: () async {
-                        selectedEmployee = null;
-                        LoadingOverlay.show(context);
-                        await getAsync();
-                        startTImer();
-
-                        LoadingOverlay.dismiss();
-                        setState(() {});
-                      },
-                      trailing: const Icon(Icons.clear),
-                      title: Text("Filtered Employee"),
-                      subtitle: Text(selectedEmployee!.name),
+  Widget _buildEmployeeFilter() {
+    if (selectedEmployee == null) return const SizedBox.shrink();
+    
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          selectedEmployee = null;
+          // LoadingOverlay.show(context);
+          await getAsync();
+          startTImer();
+          // LoadingOverlay.dismiss();
+          setState(() {});
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: Icon(Icons.person,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Filtered Employee',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(selectedEmployee!.name,
+                      style: Theme.of(context).textTheme.bodyLarge),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () async {
+                  selectedEmployee = null;
+                  // LoadingOverlay.show(context);
+                  await getAsync();
+                  startTImer();
+                  // LoadingOverlay.dismiss();
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttendanceList() {
+    if (attendanceData == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (attendanceData!.data!.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () => getAsync(),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildDateFilter()),
+            SliverToBoxAdapter(child: _buildEmployeeFilter()),
+            const SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.event_busy, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('No Attendance Records',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  itemCount: attendanceDatas.length,
-                  itemBuilder: (c, i) => Column(
-                        children: <Widget>[
-                          ExpansionTile(
-                            // subtitle: Text(DateFormat("yyyy/MM/dd HH:mm:ss")
-                            //     .format(attendanceDatas!.data![i].dateAdded!)),
-                            title: Text(attendanceDatas.keys.toList()[i]),
-                            children: [
-                              for (var dd in attendanceDatas[
-                                  attendanceDatas.keys.toList()[i]]!) ...[
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 15,
-                                    ),
-                                    Text(dd.details ?? ""),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: EasyWebView(
-                                    key: ValueKey(dd.message),
-
-                                    src: dd.message?.trim() ?? "",
-                                    isMarkdown: false, // Use markdown syntax
-                                    convertToWidgets:
-                                        true, // Try to convert to flutter widgets
-                                    height: getHeightByLength(
-                                        (attendanceData!.data![i].message ?? "")
-                                            .length),
-                                  ),
-                                ),
-                                // Text(
-                                //     dd.message?.trim().length.toString() ?? ""),
-                                Divider(),
-                              ]
-                            ],
-                          ),
-                          // ListTile(
-                          //   dense: true,
-                          //   title: Text(
-                          //       attendanceData!.data![i].employeeName ?? ""),
-                          // subtitle: Text(DateFormat("yyyy/MM/dd HH:mm:ss")
-                          //     .format(attendanceData!.data![i].dateAdded!)),
-                          // ),
-                          Divider(),
-                        ],
-                      )),
-            ),
           ],
-        );
+        ),
+      );
     }
+
+    return RefreshIndicator(
+      onRefresh: () => getAsync(),
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _buildDateFilter()),
+          SliverToBoxAdapter(child: _buildEmployeeFilter()),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final employeeName = attendanceDatas.keys.toList()[index];
+                final attendances = attendanceDatas[employeeName]!;
+                
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerTheme: const DividerThemeData(
+                        space: 1,
+                        thickness: 1,
+                      ),
+                    ),
+                    child: ExpansionTile(
+                      title: Text(
+                        employeeName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      children: attendances.map((attendance) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (attendance.details?.isNotEmpty ?? false)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                                child: Text(
+                                  attendance.details!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: EasyWebView(
+                                key: ValueKey(attendance.message),
+                                src: attendance.message?.trim() ?? "",
+                                isMarkdown: false,
+                                convertToWidgets: true,
+                                height: getHeightByLength(
+                                  (attendance.message ?? "").length,
+                                ),
+                              ),
+                            ),
+                            const Divider(),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+              childCount: attendanceDatas.length,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<em.Datum>? all;
@@ -252,93 +326,109 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: !hasAttendedLoggedOut
-            ? null
-            : FloatingActionButton.extended(
-                onPressed: logoutLogic, label: Text("End Attendance")),
-        appBar: AppBar(
-          title: searchmode
-              ? TextField(
-                  onChanged: (v) {
+      appBar: AppBar(
+        title: searchmode
+            ? SearchBar(
+                hintText: 'Search employee...',
+                leading: const Icon(Icons.search),
+                trailing: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        searchmode = false;
+                        all = null;
+                      });
+                    },
+                  ),
+                ],
+                onChanged: (v) {
+                  setState(() {
                     all = networkCaller.employeList!.data
                         .where((element) => element.name
                             .toLowerCase()
                             .startsWith(v.toLowerCase()))
                         .toList();
-                    setState(() {});
-                  },
-                  cursorColor: Colors.white,
-                  style: TextStyle(color: Colors.white),
-                  autofocus: true,
-                )
-              : Text('Attendance'),
-          actions: [
-            if (networkCaller.isAdminMode || networkCaller.isSupervisor)
-              IconButton(
-                  onPressed: () async {
-                    all = (await networkCaller.employeeList()).data;
-
-                    setState(() {
-                      searchmode = true;
-                    });
-                  },
-                  icon: const Icon(Icons.search))
-          ],
-        ),
-        body: searchmode
-            ? ListView.builder(
-                itemCount: all?.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    selected: selectedEmployee == all![index],
-                    onTap: () async {
-                      selectedEmployee = all![index];
-                      searchmode = false;
-                      timer?.cancel();
-                      setState(() {});
-                      LoadingOverlay.show(context);
-                      await getAsync();
-                      LoadingOverlay.dismiss();
-                    },
-                    leading: const Icon(Icons.person),
-                    title: Text(all![index].name),
-                  );
+                  });
                 },
               )
-            : getbody());
+            : const Text('Attendance'),
+        actions: [
+          if (networkCaller.isAdminMode || networkCaller.isSupervisor)
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () async {
+                all = (await networkCaller.employeeList()).data;
+                setState(() => searchmode = true);
+              },
+            ),
+        ],
+      ),
+      body: searchmode
+          ? ListView.builder(
+              itemCount: all?.length ?? 0,
+              itemBuilder: (context, index) {
+                final employee = all![index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(Icons.person,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  ),
+                  title: Text(employee.name),
+                  selected: selectedEmployee == employee,
+                  selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
+                  onTap: () async {
+                    selectedEmployee = employee;
+                    searchmode = false;
+                    timer?.cancel();
+                    setState(() {});
+                    // LoadingOverlay.show(context);
+                    await getAsync();
+                    // LoadingOverlay.dismiss();
+                  },
+                );
+              },
+            )
+          : _buildAttendanceList(),
+      floatingActionButton: !hasAttendedLoggedOut
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: logoutLogic,
+              icon: const Icon(Icons.logout),
+              label: const Text("End Attendance"),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+    );
   }
 
-  logoutLogic() {
+  void logoutLogic() {
     showDialog(
-        context: context,
-        builder: (c) => SimpleDialog(
-              title: Text("Are you sure?"),
-              children: [
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text("This will log you out")),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("cancel")),
-                    SizedBox(width: 10),
-                    TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          LoadingOverlay.show(context);
-                          await networkCaller.logoutAttendance(logoutDatum);
-                          await logoutted();
-                          LoadingOverlay.dismiss();
-                        },
-                        child: Text("ok")),
-                  ],
-                )
-              ],
-            ));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("End Attendance?"),
+        content: const Text(
+          "This will log you out of the attendance system. Are you sure you want to continue?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          FilledButton.tonal(
+            onPressed: () async {
+              Navigator.pop(context);
+              // LoadingOverlay.show(context);
+              await networkCaller.logoutAttendance(logoutDatum);
+              await logoutted();
+              // LoadingOverlay.dismiss();
+            },
+            child: const Text("End Attendance"),
+          ),
+        ],
+      ),
+    );
   }
 
   ad.AttendanceMiniObject? datum;

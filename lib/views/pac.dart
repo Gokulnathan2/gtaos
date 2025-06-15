@@ -96,26 +96,26 @@ class _PacViewState extends State<PacView> {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (c) => ManagePad()),
-          );
-          getAsync(force: true);
-        },
-        backgroundColor: Appcolors.primary2,
-        elevation: 4,
-        icon: const Icon(Icons.add, color:  Colors.white,),
-        label: const Text(
-          "Add Task",
-          style: TextStyle(
-            fontFamily: 'Raleway',
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   onPressed: () async {
+      //     await Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (c) => ManagePad()),
+      //     );
+      //     getAsync(force: true);
+      //   },
+      //   backgroundColor: Appcolors.primary2,
+      //   elevation: 4,
+      //   icon: const Icon(Icons.add, color:  Colors.white,),
+      //   label: const Text(
+      //     "Add Task",
+      //     style: TextStyle(
+      //       fontFamily: 'Raleway',
+      //       fontWeight: FontWeight.w600,
+      //       color: Colors.white,
+      //     ),
+      //   ),
+      // ),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

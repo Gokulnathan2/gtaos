@@ -258,7 +258,9 @@ List<Customer> _customerList = [];
   void initState() {
     super.initState();
     _initializeData();
+
     _fetchCustomerList();
+     _messageCon.text = DateFormat("yyyy-MM-dd").format(DateTime.now());
   }
 
   @override
@@ -767,41 +769,44 @@ Future<void> _fetchCustomerList() async {
                   ),
                 ),
               ),
-               const SizedBox(height: 20),
-               Align(
-                    alignment: Alignment.bottomLeft,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Handle "Add Customer" logic here
-                        log("Add Customer button pressed");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('Add Customer functionality goes here!')),
-                        );
-                      },
-                      icon: const Icon(Icons.person_add),
-                      label: const Text("Add Customer"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Appcolors.primary2,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                      ),
-                    ),
-                  ),
+              //  const SizedBox(height: 20),
+              //  Align(
+              //       alignment: Alignment.bottomLeft,
+              //       child: ElevatedButton.icon(
+              //         onPressed: () {
+              //           // Handle "Add Customer" logic here
+              //           log("Add Customer button pressed");
+              //           ScaffoldMessenger.of(context).showSnackBar(
+              //             const SnackBar(
+              //                 content:
+              //                     Text('Add Customer functionality goes here!')),
+              //           );
+              //         },
+              //         icon: const Icon(Icons.person_add),
+              //         label: const Text("Add Customer"),
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: Appcolors.primary2,
+              //           foregroundColor: Colors.white,
+              //           shape: RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(10),
+              //           ),
+              //           padding: const EdgeInsets.symmetric(
+              //               horizontal: 16, vertical: 10),
+              //         ),
+              //       ),
+              //     ),
          ],),     
              
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _updatePacModel.productList!.isNotEmpty
-                      ? _handleUpdatePac
-                      : null,
+                  // onPressed: _updatePacModel.productList!.isNotEmpty
+                  //     ? _handleUpdatePac
+                  //     : null,
+                      onPressed: (){
+                        _handleUpdatePac();
+                      },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Appcolors.primary2,
                     foregroundColor: Colors.white,

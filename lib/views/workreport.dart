@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/material.dart';
+import 'package:gtaos/views/history.dart';
 import 'package:gtaos/widgets/loading_overlay.dart';
 import 'package:intl/intl.dart';
 
@@ -354,5 +356,115 @@ class _WorkReportState extends State<WorkReport> {
           title: const Text('Work report'),
         ),
         body: getbody());
+  }
+}
+class PerWorkCard extends StatelessWidget {
+  const PerWorkCard({
+    super.key,
+    required this.data,
+  });
+
+  final Workdata data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 5,
+      child: Column(
+        children: [
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            child: Row(
+              children: [
+                Text(data.taskname ?? "-",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        height: 1.4)),
+              ],
+            ),
+          ),
+          Divider(
+            endIndent: 15,
+            indent: 15,
+          ),
+          if (data.products != null && data.products!.isNotEmpty)
+            ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: data.products!.length,
+                itemBuilder: (BuildContext context, int subIndex) {
+                  var item = data.products![subIndex];
+
+                  return Column(
+                    children: [
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 2),
+                            child: Row(
+                              children: [
+                                if (item.productoptionvalue?.isNotEmpty ??
+                                    false)
+                                  Text.rich(
+                                    TextSpan(
+                                        text: item.productname ?? "-",
+                                        children: [
+                                          TextSpan(
+                                            text: "\n" +
+                                                (item.productoptionvalue?[0]
+                                                        .value ??
+                                                    "-"),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(fontSize: 10),
+                                          )
+                                        ]),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium!
+                                        .copyWith(
+                                            fontSize: 14,
+                                            color: Colors.black,
+                                            height: 1.4),
+                                    maxLines: 4,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Spacer(),
+                          Container(
+                            padding: EdgeInsets.all(3),
+                            color: item.isCompleted ? Colors.green : Colors.red,
+                            child: Text(
+                              (item.isCompleted ? "Completed" : "Pending"),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: EasyWebView(
+                          src: "<b>Note:</b> " + (item.note ?? ""),
+                          isMarkdown: false, // Use markdown syntax
+                          convertToWidgets:
+                              true, // Try to convert to flutter widgets
+                          height: getHeightByLength(item.note?.length) + 10,
+                        ),
+                      ),
+                      // Divider(),
+                      // Text((item.note ?? "").length.toString())
+                    ],
+                  );
+                })
+        ],
+      ),
+    );
   }
 }

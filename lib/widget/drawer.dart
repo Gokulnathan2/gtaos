@@ -15,256 +15,259 @@ class GTAOSDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Drawer(
-      child: SafeArea(
-        bottom: true,
-        child: Column(
-          children: [
-
-Container(
-              height: 75, // Custom height
-              width: double.infinity, // Full width of the screen
-              color: Appcolors.primary1, // Background color
-              child:  Center(
-                  child: Text(
-                    'MENU',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+      child: Column(
+        children: [
+        //   DrawerHeader(
+            
+        //     decoration: BoxDecoration(
+        //       color: colorScheme.primaryContainer,
+        //     ),
+        //     child: SafeArea(
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: [
+        //      Image.asset(
+        //   'asset/brand_icon.png',
+        //   width: 50,
+        //   height: 50,
+        // ),
+        //           // const SizedBox(height: 8),
+        //           Text(
+        //             networkCaller.isAdminMode ? 'Admin Mode' : 'Employee Mode',
+        //             style: theme.textTheme.bodyLarge?.copyWith(
+        //               color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+          // ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerSection(
+                  context,
+                  title: 'Main',
+                  items: [
+                    NavigationDestination(
+                      icon: const Icon(Icons.home_outlined),
+                      selectedIcon: const Icon(Icons.home),
+                      label: 'Home',
+                      onTap: () => Navigator.pop(context),
                     ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.calendar_month_outlined),
+                      selectedIcon: const Icon(Icons.calendar_month),
+                      label: 'Attendance',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => AttendanceScreen()));
+                      },
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.task_outlined),
+                      selectedIcon: const Icon(Icons.task),
+                      label: 'Tasks',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => PacUpdater()));
+                      },
+                    ),
+                  ],
+                ),
+                if (networkCaller.isAdminMode)
+                  _buildDrawerSection(
+                    context,
+                    title: 'Admin',
+                    items: [
+                      NavigationDestination(
+                        icon: const Icon(Icons.inventory_2_outlined),
+                        selectedIcon: const Icon(Icons.inventory_2),
+                        label: 'Products',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(context, MaterialPageRoute(builder: (c) => ProductListScreen()));
+                        },
+                      ),
+                    ],
                   ),
+                _buildDrawerSection(
+                  context,
+                  title: 'Account',
+                  items: [
+                    NavigationDestination(
+                      icon: const Icon(Icons.settings_outlined),
+                      selectedIcon: const Icon(Icons.settings),
+                      label: 'Change Password',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => ChangePassWord()));
+                      },
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.work_outline),
+                      selectedIcon: const Icon(Icons.work),
+                      label: 'Work Report',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => WorkReport()));
+                      },
+                    ),
+                    if (networkCaller.canSwitchAccount)
+                      NavigationDestination(
+                        icon: const Icon(Icons.swap_horiz_outlined),
+                        selectedIcon: const Icon(Icons.swap_horiz),
+                        label: 'Switch Accounts',
+                        subtitle: networkCaller.isAdminMode ? 'To Employee' : 'To Admin',
+                        onTap: () => _showSwitchAccountDialog(context),
+                      ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.person_outline),
+                      selectedIcon: const Icon(Icons.person),
+                      label: 'Change Account',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => LoginScreen(changemode: true)));
+                      },
+                    ),
+                    
+                  ],
+                ),
                 
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FilledButton.icon(
+              onPressed: () => _showLogoutDialog(context),
+              icon: const Icon(Icons.logout),
+              label: const Text('Logout'),
+              style: FilledButton.styleFrom(
+                backgroundColor: colorScheme.errorContainer,
+                foregroundColor: colorScheme.onErrorContainer,
+                minimumSize: const Size(double.infinity, 48),
               ),
             ),
-            
-            ListTile(
-              leading: const Icon(Icons.home, color: Color(0xff89c236)),
-              title: Text("Home"),
-              selected: true,
-            ),
-            
-            Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-            ListTile(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (c) => AttendanceScreen()));
-              },
-              leading: const Icon(Icons.calendar_month),
-              title: Text("Attendance"),
-            ),
-            Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (c) => PacUpdater()));
-              },
-              leading: const Icon(Icons.circle),
-              title: Text("Tasks"),
-            ),
-            Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-            if (networkCaller.isAdminMode)
-              ListTile(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => ProductListScreen()));
-                },
-                leading: const Icon(Icons.production_quantity_limits),
-                title: Text("Products"),
-              ),
-                          Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-
-            // ListTile(
-            //   onTap: () {
-            //     Navigator.push(context,
-            //         MaterialPageRoute(builder: (c) => ProductListScreen()));
-            //   },
-            //   leading: const Icon(Icons.ad_units_outlined),
-            //   title: Text("Options"),
-            // ),
-            ListTile(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (c) => ChangePassWord()));
-              },
-              leading: const Icon(Icons.settings),
-              title: Text("Change Password"),
-            ),
-                        Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (c) => WorkReport()));
-              },
-              leading: const Icon(Icons.chalet_rounded),
-              title: Text("Work Report"),
-            ),
-            if (networkCaller.canSwitchAccount)
-              ListTile(
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (c) => SimpleDialog(
-                            title: Text("Are you sure?"),
-                            children: [
-                              Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 20),
-                                  child: Text("This will switch accounts.")),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text("cancel")),
-                                  SizedBox(width: 10),
-                                  TextButton(
-                                      onPressed: () async {
-                                        Navigator.pop(context);
-                                        networkCaller.isAdminMode =
-                                            !networkCaller.isAdminMode;
-                                        networkCaller.reset();
-                                        Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (c) => LoginScreen()),
-                                            (c) => false);
-                                      },
-                                      child: Text("ok")),
-                                ],
-                              )
-                            ],
-                          ));
-                },
-                leading: const Icon(Icons.change_circle_outlined),
-                title: Text("Switch Accounts"),
-                subtitle: Text(
-                    networkCaller.isAdminMode ? "To Employee" : "To admin"),
-              )
-            else
-            Container(
-              height: 0, // Space above the line
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: const Color(0xFFDDDDDD), // Border color
-                    width: 1, // Border width
-                  ),
-                ),
-              ),
-            ),
-            
-              ListTile(
-                onTap: () {
-                  log(networkCaller.box.read("user").toString());
-                  log(networkCaller.box.read("adminuser").toString());
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (c) => LoginScreen(changemode: true)));
-                },
-                leading: const Icon(Icons.switch_access_shortcut),
-                title: Text("Change Account"),
-              ),
-            Spacer(),
-            ListTile(
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (c) => SimpleDialog(
-                          title: Text("Are you sure?"),
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Text("This will log you out.")),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text("cancel")),
-                                SizedBox(width: 10),
-                                TextButton(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await networkCaller.removeUser();
-
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (c) => LoginScreen()),
-                                          (c) => false);
-                                    },
-                                    child: Text("ok")),
-                              ],
-                            )
-                          ],
-                        ));
-              },
-              leading: const Icon(Icons.logout, color: Color(0xff89c236)),
-              title: Text("Logout"),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _buildDrawerSection(
+    BuildContext context, {
+    required String title,
+    required List<NavigationDestination> items,
+  }) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            title.toUpperCase(),
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...items.map((item) => ListTile(
+          leading: item.icon,
+          title: Text(item.label),
+          subtitle: item.subtitle != null ? Text(item.subtitle!) : null,
+          onTap: item.onTap,
+          selected: false,
+          selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        )),
+        const Divider(height: 1),
+      ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await networkCaller.removeUser();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (c) => LoginScreen()),
+                  (c) => false,
+                );
+              }
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSwitchAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Switch Account'),
+        content: const Text('Are you sure you want to switch accounts?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              networkCaller.isAdminMode = !networkCaller.isAdminMode;
+              networkCaller.reset();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (c) => LoginScreen()),
+                (c) => false,
+              );
+            },
+            child: const Text('Switch'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NavigationDestination {
+  final Widget icon;
+  final Widget selectedIcon;
+  final String label;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  const NavigationDestination({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    this.subtitle,
+    required this.onTap,
+  });
 }

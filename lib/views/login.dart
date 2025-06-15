@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   _SupportState _supportState = _SupportState.unknown;
-final TextEditingController _domainController = TextEditingController();
+  final TextEditingController _domainController = TextEditingController();
   bool _showDomainField = false; // To toggle domain field visibility
   @override
   void initState() {
@@ -79,12 +79,13 @@ final TextEditingController _domainController = TextEditingController();
       email = "ceo@gleantech.com";
       pass = "Ceogts@24";
     }
-  _domainController.text = AppConfig.domain;
+    _domainController.text = AppConfig.domain;
     // Only show domain field if in debug mode or no domain is set
     _showDomainField = kDebugMode || AppConfig.domain.isEmpty;
     _email.text = email;
     _password.text = pass;
   }
+
 // Future<void> _saveDomain() async {
 //     if (_domainController.text.trim().isNotEmpty) {
 //       await AppConfig.setDomain(_domainController.text.trim());
@@ -94,28 +95,61 @@ final TextEditingController _domainController = TextEditingController();
 //       BotToast.showText(text: "Domain updated successfully");
 //     }
 //   }
-Future<void> _saveDomain() async {
-  final domainPart = _domainController.text.trim();
-  if (domainPart.isEmpty) {
-    BotToast.showText(text: "Please enter a domain");
-    return;
+  // Future<void> _saveDomain() async {
+  //   final domainPart = _domainController.text.trim();
+  //   if (domainPart.isEmpty) {
+  //     BotToast.showText(text: "Please enter a domain");
+  //     return;
+  //   }
+
+  //   // Construct the full URL
+  //   final fullDomain = "https://$domainPart.gleantech.com";
+
+  //   // Validate the URL format
+  //   if (!fullDomain.startsWith('https://') || !fullDomain.contains('.')) {
+  //     BotToast.showText(text: "Invalid domain format");
+  //     return;
+  //   }
+
+  //   await AppConfig.setDomain(fullDomain);
+  //   setState(() {
+  //     _showDomainField = false;
+  //   });
+  //   BotToast.showText(text: "Domain updated successfully");
+  // }
+
+  Future<void> _saveDomain() async {
+    final domain = _domainController.text.trim();
+
+    if (domain.isEmpty) {
+      BotToast.showText(text: "Please enter a domain");
+      return;
+    }
+
+    // Ensure the domain starts with https://
+    String fullDomain = domain;
+    if (!fullDomain.startsWith('https://')) {
+      fullDomain = 'https://$domain';
+    }
+
+    // Basic URL validation
+    try {
+      final uri = Uri.parse(fullDomain);
+      if (uri.host.isEmpty) {
+        throw FormatException('Invalid host');
+      }
+    } catch (e) {
+      BotToast.showText(text: "Invalid domain format");
+      return;
+    }
+
+    await AppConfig.setDomain(fullDomain);
+    setState(() {
+      _showDomainField = false;
+    });
+    BotToast.showText(text: "Domain updated successfully");
   }
 
-  // Construct the full URL
-  final fullDomain = "https://$domainPart.gleantech.com";
-  
-  // Validate the URL format
-  if (!fullDomain.startsWith('https://') || !fullDomain.contains('.')) {
-    BotToast.showText(text: "Invalid domain format");
-    return;
-  }
-
-  await AppConfig.setDomain(fullDomain);
-  setState(() {
-    _showDomainField = false;
-  });
-  BotToast.showText(text: "Domain updated successfully");
-}
   validateLogin() async {
     user = networkCaller.getUser();
     loggedOut = user == null;
@@ -138,12 +172,12 @@ Future<void> _saveDomain() async {
   }
 
   bool get canLogin => email.length > 5 && pass.length > 5;
-    InputDecoration _getInputDecoration(String labelText, {String? hintText}) {
+  InputDecoration _getInputDecoration(String labelText, {String? hintText}) {
     return InputDecoration(
       isDense: true,
       hintText: hintText,
       contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20,vertical: 12.0),
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 12.0),
       hintStyle: TextStyle(
         fontFamily: 'Raleway',
         fontSize: 14,
@@ -159,8 +193,7 @@ Future<void> _saveDomain() async {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            BorderSide(color: Appcolors.primary2), // Highlight on focus
+        borderSide: BorderSide(color: Appcolors.primary2), // Highlight on focus
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -179,223 +212,291 @@ Future<void> _saveDomain() async {
       labelStyle: TextStyle(color: Colors.grey.shade700),
     );
   }
-Widget uploadImage() {
-  return GradientScaffold(
-    child: SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 600;
 
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(0,150,0,0),
-            child:  Stack(
-              
-              children: [ 
-             
-              
-              Container(
-               height: MediaQuery.of(context).size.height ,
-                    decoration: BoxDecoration(
-                  // color: Colors.white,
-                  gradient: LinearGradient(
-                colors: [
-                  Colors.white,
-                    Colors.white
-                  // Color(0xFF89c236), // primary2
-                  // Color(0xFFa7d74f), // light green
-                  // Color(0xFFc9f39f),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ), 
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60))
-                ),
-              // elevation: 8,
-              // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: ListView(
+  Widget uploadImage() {
+    return GradientScaffold(
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 600;
+
+            return Padding(
+                padding: const EdgeInsets.fromLTRB(0, 200, 0, 0),
+                child: Stack(
                   children: [
-                    /// Logout tile
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.logout, color: Colors.redAccent),
-                      title: const Text("Logout", style: TextStyle(fontWeight: FontWeight.w600)),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (c) => AlertDialog(
-                            title: const Text("Are you sure?", style: TextStyle(fontWeight: FontWeight.bold)),
-                            content: const Text("This will log you out."),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-                              FilledButton.tonal(
-                                style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await networkCaller.removeUser();
-                                    await AppConfig.clearDomain();
-    await networkCaller.removeUser();
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => LoginScreen()),
-                                    (route) => false,
-                                  );
-                                },
-                                child: const Text("Logout", style: TextStyle(color: Colors.white)),
-                              ),
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(
+                          // color: Colors.white,
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white,
+                              Colors.white
+                              // Color(0xFF89c236), // primary2
+                              // Color(0xFFa7d74f), // light green
+                              // Color(0xFFc9f39f),
                             ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    /// Image display
-                    Center(
-                      child: photo != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: kIsWeb
-                                  ? Image.network(photo!.path, height: 200, width: 200, fit: BoxFit.cover)
-                                  : Image.file(File(photo!.path), height: 200, width: 200, fit: BoxFit.cover),
-                            )
-                          : ImagePlaceholder(onPressed: () {}, size: 200),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    /// Selfie button
-                    Center(
-                      child: SizedBox(
-                        width: isMobile ? double.infinity : 320,
-                        child: FilledButton.icon(
-                          icon: Icon(photo != null ? Icons.refresh : Icons.camera_alt),
-                          label: Text(photo != null ? "Change Image" : "Take Selfie"),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Appcolors.primary1,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(60),
+                              topRight: Radius.circular(60))),
+                      // elevation: 8,
+                      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Stack(
+                        children: [
+                          // Watermark image
+                          Positioned.fill(
+                            child: Opacity(
+                              opacity: 0.1, // Adjust opacity as needed
+                              child: Center(
+                                child: Image.asset(
+                                  'asset/brand_icon.png',
+                                  width: 200, // Adjust size as needed
+                                  height: 200,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
                           ),
-                          onPressed: () async {
-                            pickImage() async {
-                              photo = await ImagePicker().pickImage(
-                                source: ImageSource.camera,
-                                preferredCameraDevice: kDebugMode ? CameraDevice.rear : CameraDevice.front,
-                                requestFullMetadata: true,
-                                imageQuality: 50,
-                              );
-                              setState(() {});
-                            }
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                /// Logout tile
+                                ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: const Icon(Icons.logout,
+                                      color: Colors.redAccent),
+                                  title: const Text("Logout",
+                                      style:
+                                          TextStyle(fontWeight: FontWeight.w600)),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (c) => AlertDialog(
+                                        title: const Text("Are you sure?",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        content:
+                                            const Text("This will log you out."),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: const Text("Cancel")),
+                                          FilledButton.tonal(
+                                            style: FilledButton.styleFrom(
+                                                backgroundColor: Colors.redAccent),
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              await networkCaller.removeUser();
+                                              await AppConfig.clearDomain();
+                                              await networkCaller.removeUser();
+                                              Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (_) => LoginScreen()),
+                                                (route) => false,
+                                              );
+                                            },
+                                            child: const Text("Logout",
+                                                style:
+                                                    TextStyle(color: Colors.white)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
 
-                            if (!kIsWeb && _supportState == _SupportState.supported) {
-                              await _checkBiometrics();
-                              if (_canCheckBiometrics!) {
-                                var res = await _authenticateWithBiometrics();
-                                if (res ?? false) pickImage();
-                              } else {
-                                pickImage();
-                              }
-                            } else {
-                              pickImage();
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+                                const SizedBox(height: 40),
 
-                    const SizedBox(height: 30),
+                                /// Image display
+                                Center(
+                                  child: photo != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: kIsWeb
+                                              ? Image.network(photo!.path,
+                                                  height: 200,
+                                                  width: 200,
+                                                  fit: BoxFit.cover)
+                                              : Image.file(File(photo!.path),
+                                                  height: 200,
+                                                  width: 200,
+                                                  fit: BoxFit.cover),
+                                        )
+                                      : ImagePlaceholder(
+                                          onPressed: () {}, size: 200),
+                                ),
 
-                    /// Dropdowns
-                    if (attendanceStatus != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: DropdownButtonFormField<AttendanceMiniObject>(
-                          value: datum,
-                          decoration: _getInputDecoration("Mark Attendance"),
-                          items: attendanceStatus!.data!
-                              .map((e) => DropdownMenuItem(value: e, child: Text(e.name ?? "-")))
-                              .toList(),
-                          onChanged: (val) {
-                            datum = val;
-                            setState(() {});
-                          },
-                        ),
-                      ),
+                                const SizedBox(height: 30),
 
-                    if (empTaskList != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: DropdownButtonFormField<TaskListDatum>(
-                          value: taskListDatum,
-                          decoration: _getInputDecoration("Select Task"),
-                          items: empTaskList!.data!
-                              .map((e) => DropdownMenuItem(value: e, child: Text(e.subject ?? "-")))
-                              .toList(),
-                          onChanged: (val) {
-                            taskListDatum = val;
-                            setState(() {});
-                          },
-                        ),
-                      ),
+                                /// Selfie button
+                                Center(
+                                  child: SizedBox(
+                                    width: isMobile ? double.infinity : 320,
+                                    child: FilledButton.icon(
+                                      icon: Icon(photo != null
+                                          ? Icons.refresh
+                                          : Icons.camera_alt),
+                                      label: Text(photo != null
+                                          ? "Change Image"
+                                          : "Take Selfie"),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Appcolors.primary1,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 14),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                      ),
+                                      onPressed: () async {
+                                        pickImage() async {
+                                          photo = await ImagePicker().pickImage(
+                                            source: ImageSource.camera,
+                                            preferredCameraDevice: kDebugMode
+                                                ? CameraDevice.rear
+                                                : CameraDevice.front,
+                                            requestFullMetadata: true,
+                                            imageQuality: 50,
+                                          );
+                                          setState(() {});
+                                        }
 
-                    const SizedBox(height: 30),
+                                        if (!kIsWeb &&
+                                            _supportState ==
+                                                _SupportState.supported) {
+                                          await _checkBiometrics();
+                                          if (_canCheckBiometrics!) {
+                                            var res =
+                                                await _authenticateWithBiometrics();
+                                            if (res ?? false) pickImage();
+                                          } else {
+                                            pickImage();
+                                          }
+                                        } else {
+                                          pickImage();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
 
-                    /// Save button
-                    Center(
-                      child: SizedBox(
-                        width: isMobile ? double.infinity : 240,
-                        height: 50,
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.save_alt),
-                          label: const Text("Save", style: TextStyle(fontSize: 16)),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Appcolors.primary2,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 3,
-                            shadowColor: Appcolors.primary2.withOpacity(0.3),
+                                const SizedBox(height: 30),
+
+                                /// Dropdowns
+                                if (attendanceStatus != null)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 10),
+                                    child: DropdownButtonFormField<
+                                        AttendanceMiniObject>(
+                                      value: datum,
+                                      decoration:
+                                          _getInputDecoration("Mark Attendance"),
+                                      items: attendanceStatus!.data!
+                                          .map((e) => DropdownMenuItem(
+                                              value: e, child: Text(e.name ?? "-")))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        datum = val;
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ),
+
+                                if (empTaskList != null)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 10),
+                                    child: DropdownButtonFormField<TaskListDatum>(
+                                      value: taskListDatum,
+                                      decoration:
+                                          _getInputDecoration("Select Task"),
+                                      items: empTaskList!.data!
+                                          .map((e) => DropdownMenuItem(
+                                              value: e,
+                                              child: Text(e.subject ?? "-")))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        taskListDatum = val;
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ),
+
+                                const SizedBox(height: 30),
+
+                                /// Save button
+                                Center(
+                                  child: SizedBox(
+                                    width: isMobile ? double.infinity : 240,
+                                    height: 50,
+                                    child: FilledButton.icon(
+                                      icon: const Icon(Icons.save_alt),
+                                      label: const Text("Save",
+                                          style: TextStyle(fontSize: 16)),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Appcolors.primary2,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                        elevation: 3,
+                                        shadowColor:
+                                            Appcolors.primary2.withOpacity(0.3),
+                                      ),
+                                      onPressed: photo != null && datum != null
+                                          ? () async {
+                                              setState(() => uploading = true);
+                                              LoadingOverlay.show(context);
+
+                                              var byte = await photo!.readAsBytes();
+                                              var result =
+                                                  await networkCaller.uploadPhoto(
+                                                kIsWeb ? byte : photo!.path,
+                                                datum,
+                                                taskListDatum,
+                                              );
+
+                                              if (kDebugMode) {
+                                                BotToast.showText(
+                                                    text: result["data"].toString(),
+                                                    duration:
+                                                        const Duration(seconds: 3));
+                                              }
+
+                                              LoadingOverlay.dismiss();
+                                              setState(() {
+                                                uploading = false;
+                                                hasAttended = true;
+                                                attendanceSent = true;
+                                              });
+
+                                              Navigator.of(context).pushReplacement(
+                                                MaterialPageRoute(
+                                                    builder: (_) => HomeScreen()),
+                                              );
+                                            }
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          onPressed: photo != null && datum != null
-                              ? () async {
-                                  setState(() => uploading = true);
-                                  LoadingOverlay.show(context);
-
-                                  var byte = await photo!.readAsBytes();
-                                  var result = await networkCaller.uploadPhoto(
-                                    kIsWeb ? byte : photo!.path, datum, taskListDatum,
-                                  );
-
-                                  if (kDebugMode) {
-                                    BotToast.showText(
-                                        text: result["data"].toString(), duration: const Duration(seconds: 3));
-                                  }
-
-                                  LoadingOverlay.dismiss();
-                                  setState(() {
-                                    uploading = false;
-                                    hasAttended = true;
-                                    attendanceSent = true;
-                                  });
-
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (_) => HomeScreen()),
-                                  );
-                                }
-                              : null,
-                        ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),],)
-          );
-        },
+                ));
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   InputDecoration _formDecoration(String hint) {
     return InputDecoration(
@@ -457,381 +558,447 @@ Widget uploadImage() {
           child: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                // horizontal: MediaQuery.of(context).size.width * 0.04,
-                // vertical: 20,
-              ),
+                  // horizontal: MediaQuery.of(context).size.width * 0.04,
+                  // vertical: 20,
+                  ),
               child: Column(
-                mainAxisAlignment : MainAxisAlignment.center,
-               
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                 SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                  // Add domain configuration section
-             
-              
-                  Container( // Wrapped the content in a Card
+                  SizedBox(height: MediaQuery.of(context).size.height /2.8),
+                  // Add domain configuration sectio2.5
+
+                  Container(
+                    // Wrapped the content in a Card
                     // elevation: 8,
                     // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    height: MediaQuery.of(context).size.height ,
+                    height: MediaQuery.of(context).size.height,
                     decoration: BoxDecoration(
-                  // color: Colors.white,
-                  gradient: LinearGradient(
-                colors: [
-                  Colors.white,
-                    Colors.white
-                  // Color(0xFF89c236), // primary2
-                  // Color(0xFFa7d74f), // light green
-                  // Color(0xFFc9f39f),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ), 
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60))
-                ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0), // Added padding inside the card
-                      child: Column(
-                        children: [
-                          Image.asset(
-          'asset/brand_icon.png',
-          width: 100,
-          height: 100,
-        ),
-                          Center(
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.7,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(25),
+                        // color: Colors.white,
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white,
+                            Colors.white
+                            // Color(0xFF89c236), // primary2
+                            // Color(0xFFa7d74f), // light green
+                            // Color(0xFFc9f39f),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(60),
+                            topRight: Radius.circular(60))),
+                    child: Stack(
+                      children: [
+                        // Watermark image
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: 0.8, // Adjust opacity as needed
+                            child: Center(
+                              child: Image.asset(
+                                alignment: Alignment.topCenter,
+                                'asset/Login_Screen_bg.png',
+                                width: MediaQuery.of(context).size.width, // Adjust size as needed
+                                height: MediaQuery.of(context).size.height,
+                                fit: BoxFit.cover,
                               ),
-                              child: Stack(
-                                children: [
-                                  AnimatedPositioned(
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                    left: isAdminLogin
-                                        ? MediaQuery.of(context).size.width * 0.3
-                                        : 0,
-                                    child: Container(
-                                      width: MediaQuery.of(context).size.width * 0.4,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Appcolors.primary2,
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                    ),
+                            ),
+                          ),
+                        ),
+                        // Login components
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              // Image.asset(
+                              //   'asset/brand_icon.png',
+                              //   width: 100, // Adjust size as needed
+                              //   height: 100,
+                              //   fit: BoxFit.contain,
+                              // ),
+                                SizedBox(height: MediaQuery.of(context).size.height /20),
+                              Center(
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.7,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(25),
                                   ),
-                                  
-                                  Row(
+                                  child: Stack(
                                     children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              isAdminLogin = false;
-                                              if (kDebugMode) {
-                                                email = "vediyappan.v@gleantech.co.in";
-                                                pass = "Vediya!@2024";
-                                              }
-                                              _email.text = email;
-                                              _password.text = pass;
-                                            });
-                                          },
-                                          child: Center(
-                                            child: Text(
-                                              "Employee Login",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: isAdminLogin
-                                                    ? Color.fromARGB(221, 98, 96, 96)
-                                                    : Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                      AnimatedPositioned(
+                                        duration: Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                        left: isAdminLogin
+                                            ? MediaQuery.of(context).size.width *
+                                                0.3
+                                            : 0,
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width *
+                                              0.4,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Appcolors.primary2,
+                                            borderRadius: BorderRadius.circular(25),
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              isAdminLogin = true;
-                                              if (kDebugMode) {
-                                                email = "ceo@gleantech.com";
-                                                pass = "Ceogts@24";
-                                              }
-                                              _email.text = email;
-                                              _password.text = pass;
-                                            });
-                                          },
-                                          child: Center(
-                                            child: Text(
-                                              "Admin Login",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: isAdminLogin
-                                                    ? Colors.white
-                                                    : const Color.fromARGB(221, 98, 96, 96),
-                                                fontWeight: FontWeight.bold,
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  isAdminLogin = false;
+                                                  if (kDebugMode) {
+                                                    email =
+                                                        "vediyappan.v@gleantech.co.in";
+                                                    pass = "Vediya!@2024";
+                                                  }
+                                                  _email.text = email;
+                                                  _password.text = pass;
+                                                });
+                                              },
+                                              child: Center(
+                                                child: Text(
+                                                  "Employee Login",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: isAdminLogin
+                                                        ? Color.fromARGB(
+                                                            221, 98, 96, 96)
+                                                        : Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  isAdminLogin = true;
+                                                  if (kDebugMode) {
+                                                    email = "ceo@gleantech.com";
+                                                    pass = "Ceogts@24";
+                                                  }
+                                                  _email.text = email;
+                                                  _password.text = pass;
+                                                });
+                                              },
+                                              child: Center(
+                                                child: Text(
+                                                  "Admin Login",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: isAdminLogin
+                                                        ? Colors.white
+                                                        : const Color.fromARGB(
+                                                            221, 98, 96, 96),
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                         if (_showDomainField) ...[
-  CustomTextInputField(
-    controller: _domainController,
-    labelColor: Colors.black,
-    fillColor: Colors.white,
-    title: "Server Domain",
-    hintText: "app",
-    inputType: TextInputType.text,
-    borderRadius: 14,
-    suffix: IconButton(
-      icon: Icon(Icons.save, color: Appcolors.primary2),
-      onPressed: _saveDomain,
-    ),
-  ),
-  SizedBox(height: 10),
-] else ...[
-  GestureDetector(
-    onTap: () {
-      setState(() {
-        _showDomainField = true;
-
-        // Extract just the subdomain part when showing the field
-        final domainParts = AppConfig.domain.replaceFirst('https://', '').split('.');
-      print(domainParts.first);
-        _domainController.text = domainParts.first;
-      });
-    },
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.link, size: 20, color: Colors.grey.shade600),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              AppConfig.domain,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade700,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Icon(Icons.edit, size: 18, color: Appcolors.primary2),
-        ],
-      ),
-    ),
-  ),
-  SizedBox(height: 10),
-],
-                      // SizedBox(height: 20),
-                
-                          CustomTextInputField(
-                            controller: _email,
-                            labelColor: Colors.black,
-                            fillColor: Colors.white,
-                            title: "Username",
-                            hintText: "Your Username",
-                            inputType: TextInputType.emailAddress,
-                            validator: (val) => FormValidator.validateEmail(val),
-                            borderRadius: 14,
-                            onChanged: (val) {
-                              email = val.trim();
-                              setState(() {});
-                            },
-                          ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                          CustomTextInputField(
-                            controller: _password,
-                            labelColor: Colors.black,
-                            fillColor: Colors.white,
-                            title: "Password",
-                            hintText: "Your Password",
-                            obscureText: true,
-                            type: TextFieldType.Password,
-                            validator: (val) =>
-                                FormValidator.validateFieldNotEmpty(val, "Password"),
-                            borderRadius: 14,
-                            onChanged: (val) {
-                              pass = val.trim();
-                              setState(() {});
-                            },
-                          ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.black,
-                                padding: EdgeInsets.zero,
-                              ),
-                              onPressed: () {
-                                var con = TextEditingController();
-                                var loading = false;
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => StatefulBuilder(
-                                    builder: ((context, setState) => SimpleDialog(
-                                          // title: const Text("Reset Password"),
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                "Reset Password",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: TextField(
-                                                autofocus: true,
-                                                controller: con,
-                                                decoration: const InputDecoration(
-                                                    hintText: "Enter email",
-                                                    label: Text(
-                                                      "Email",
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.black),
-                                                    )),
-                                              ),
-                                            ),
-                                            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-
-                                            Padding(
-                                              padding: const EdgeInsets.all(6.0),
-                                              child: ElevatedButton(
-                                                  onPressed: () async {
-                                                    if (con.text.contains("@")) {
-                                                      try {
-                                                        setState(() {
-                                                          loading = true;
-                                                        });
-                                                        var res = await networkCaller
-                                                            .sendPasswordResetEmail(
-                                                                con.text.trim(),
-                                                                isAdminLogin);
-                                                        setState(() {
-                                                          loading = false;
-                                                        });
-                                                        BotToast.showText(
-                                                            contentColor: Colors.green,
-                                                            duration:
-                                                                Duration(seconds: 3),
-                                                            text: res);
-
-                                                        Navigator.pop(context);
-                                                      } catch (e) {
-                                                        setState(() {
-                                                          loading = false;
-                                                        });
-
-                                                        BotToast.showText(
-                                                            contentColor: Colors.red,
-                                                            text: e.toString());
-                                                      }
-                                                    } else {
-                                                      BotToast.showText(
-                                                          contentColor: Colors.red,
-                                                          text:
-                                                              "Enter Valid Email address");
-                                                    }
-                                                  },
-                                                  child: loading
-                                                      ? FittedBox(
-                                                          child: SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child:
-                                                                  const CircularProgressIndicator(
-                                                                backgroundColor:
-                                                                    Colors.black,
-                                                              )))
-                                                      : Text(
-                                                          "Reset Password",
-                                                          style: TextStyle(
-                                                              fontSize: 16,
-                                                              color: Colors.black),
-                                                        )),
-                                            )
-                                          ],
-                                        )),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                "Forgot password?",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  decoration: TextDecoration.underline,
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                          Center(
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: AppButton(
-                                text: "Log In",
-                                shadowColor: Appcolors.primary2,
-                                onTap: !canLogin
-                                    ? null
-                                    : () async {
-                                        LoadingOverlay.show(context);
-                                        user = await networkCaller.login(
-                                            email, pass, isAdminLogin);
-
-                                        if (user != null) {
-                                          if (isAdminLogin) {
-                                            LoadingOverlay.dismiss();
-                                            Navigator.of(context).pushReplacement(
-                                                MaterialPageRoute(
-                                                    builder: (_) => HomeScreen()));
-                                          } else {
-                                            await validateLogin();
-                                          }
-
-                                          loggedOut = false;
-
-                                          LoadingOverlay.dismiss();
-
-                                          setState(() {});
-                                        } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Failed to login, Please check email or password'),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.03),
+                              if (_showDomainField) ...[
+                                CustomTextInputField(
+                                  controller: _domainController,
+                                  labelColor: Colors.black,
+                                  fillColor: Colors.white,
+                                  title: "Server Domain",
+                                  hintText: "https://yourdomain.com",
+                                  inputType: TextInputType.url,
+                                  onFocusChange: (p0) {
+                                    if (!p0) {
+                                      _saveDomain();
+                                    }
+                                  },
+                                  borderRadius: 14,
+                                ),
+                                // SizedBox(height: 10),
+                                // Text(
+                                //   "Must start with https://",
+                                //   style: TextStyle(
+                                //     fontSize: 12,
+                                //     color: Colors.grey.shade600,
+                                //   ),
+                                // ),
+                                SizedBox(height: 10),
+                              ] else ...[
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _showDomainField = true;
+                                      _domainController.text = AppConfig.domain;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border:
+                                          Border.all(color: Colors.grey.shade300),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.link,
+                                            size: 20, color: Colors.grey.shade600),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            AppConfig.domain,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade700,
                                             ),
-                                          );
-                                        }
-                                      },
-                                color: Appcolors.primary2,
-                                textColor: canLogin ? Colors.white : Colors.white,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Icon(Icons.edit,
+                                            size: 18, color: Appcolors.primary2),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                              ],
+                              // SizedBox(height: 20),
+
+                              CustomTextInputField(
+                                controller: _email,
+                                labelColor: Colors.black,
+                                fillColor: Colors.white,
+                                title: "Username",
+                                hintText: "Your Username",
+                                inputType: TextInputType.emailAddress,
+                                validator: (val) =>
+                                    FormValidator.validateEmail(val),
+                                borderRadius: 14,
+                                onChanged: (val) {
+                                  email = val.trim();
+                                  setState(() {});
+                                },
                               ),
-                            ),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01),
+                              CustomTextInputField(
+                                controller: _password,
+                                labelColor: Colors.black,
+                                fillColor: Colors.white,
+                                title: "Password",
+                                hintText: "Your Password",
+                                obscureText: true,
+                                type: TextFieldType.Password,
+                                validator: (val) =>
+                                    FormValidator.validateFieldNotEmpty(
+                                        val, "Password"),
+                                borderRadius: 14,
+                                onChanged: (val) {
+                                  pass = val.trim();
+                                  setState(() {});
+                                },
+                              ),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01),
+
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                    padding: EdgeInsets.zero,
+                                  ),
+                                  onPressed: () {
+                                    var con = TextEditingController();
+                                    var loading = false;
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => StatefulBuilder(
+                                        builder: ((context, setState) =>
+                                            SimpleDialog(
+                                              // title: const Text("Reset Password"),
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    "Reset Password",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: TextField(
+                                                    autofocus: true,
+                                                    controller: con,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            hintText: "Enter email",
+                                                            label: Text(
+                                                              "Email",
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      Colors.black),
+                                                            )),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height: MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.01),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(6.0),
+                                                  child: ElevatedButton(
+                                                      onPressed: () async {
+                                                        if (con.text
+                                                            .contains("@")) {
+                                                          try {
+                                                            setState(() {
+                                                              loading = true;
+                                                            });
+                                                            var res = await networkCaller
+                                                                .sendPasswordResetEmail(
+                                                                    con.text.trim(),
+                                                                    isAdminLogin);
+                                                            setState(() {
+                                                              loading = false;
+                                                            });
+                                                            BotToast.showText(
+                                                                contentColor:
+                                                                    Colors.green,
+                                                                duration: Duration(
+                                                                    seconds: 3),
+                                                                text: res);
+
+                                                            Navigator.pop(context);
+                                                          } catch (e) {
+                                                            setState(() {
+                                                              loading = false;
+                                                            });
+
+                                                            BotToast.showText(
+                                                                contentColor:
+                                                                    Colors.red,
+                                                                text: e.toString());
+                                                          }
+                                                        } else {
+                                                          BotToast.showText(
+                                                              contentColor:
+                                                                  Colors.red,
+                                                              text:
+                                                                  "Enter Valid Email address");
+                                                        }
+                                                      },
+                                                      child: loading
+                                                          ? FittedBox(
+                                                              child: SizedBox(
+                                                                  height: 20,
+                                                                  width: 20,
+                                                                  child:
+                                                                      const CircularProgressIndicator(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .black,
+                                                                  )))
+                                                          : Text(
+                                                              "Reset Password",
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      Colors.black),
+                                                            )),
+                                                )
+                                              ],
+                                            )),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    "Forgot password?",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01),
+                              Center(
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: AppButton(
+                                    text: "Log In",
+                                    shadowColor: Appcolors.primary2,
+                                    onTap: !canLogin
+                                        ? null
+                                        : () async {
+                                            LoadingOverlay.show(context);
+
+                                            user = await networkCaller.login(
+                                                email, pass, isAdminLogin);
+
+                                            if (user != null) {
+                                              if (isAdminLogin) {
+                                                LoadingOverlay.dismiss();
+                                                Navigator.of(context)
+                                                    .pushReplacement(
+                                                        MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                HomeScreen()));
+                                              } else {
+                                                await validateLogin();
+                                              }
+
+                                              loggedOut = false;
+
+                                              LoadingOverlay.dismiss();
+
+                                              setState(() {});
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Failed to login, Please check email or password'),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                    color: Appcolors.primary2,
+                                    textColor:
+                                        canLogin ? Colors.white : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -851,4 +1018,3 @@ enum _SupportState {
   supported,
   unsupported,
 }
-
