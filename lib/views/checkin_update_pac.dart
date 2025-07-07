@@ -1006,19 +1006,31 @@ Future<void> _fetchCustomerList() async {
 
   /// Handles the logic for updating the PAC (Product/Service/Activity Checklist).
   Future<void> _handleUpdatePac() async {
-    // EasyLoading.show(status: 'Updating PAC...');
+    LoadingOverlay.show(context, );
     try {
+      Future? uploadFuture;
       if (_attachedPhoto != null) {
-        var res = await networkCaller.uploadAttachment(_attachedPhoto!.path);
-        _updatePacModel.attachname = _attachedPhoto!.name;
-        _updatePacModel.attachpath = res["data"]["location1"];
+        uploadFuture = networkCaller.uploadAttachment(_attachedPhoto!.path);
       }
-      await _setupVariablesBeforeUpload();
+
+      // Start location/IP setup in parallel
+      _setupVariablesBeforeUpload();
+
+      // Wait for both to finish
+      var uploadResult;
+      if (uploadFuture != null) {
+        uploadResult = await uploadFuture;
+        _updatePacModel.attachname = _attachedPhoto!.name;
+        _updatePacModel.attachpath = uploadResult["data"]["location1"];
+      }
+      //  await setupFuture;
+        _setupVariablesBeforeUpload();
+
       log("updatePacModel after setupVariablesBeforeUpload: ${_updatePacModel.toJson()}");
 
       await networkCaller.updateThePac(_updatePacModel);
-      // EasyLoading.dismiss();
-      if (mounted) {
+
+      // if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1026,10 +1038,9 @@ Future<void> _fetchCustomerList() async {
             backgroundColor: Colors.green,
           ),
         );
-      }
+      // }
     } catch (e) {
       log("Error updating PAC: $e");
-      // EasyLoading.dismiss();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1038,6 +1049,8 @@ Future<void> _fetchCustomerList() async {
           ),
         );
       }
+    } finally {
+      LoadingOverlay.dismiss();
     }
   }
 

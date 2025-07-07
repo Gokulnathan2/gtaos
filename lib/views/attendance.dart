@@ -42,14 +42,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   startTImer() {
     if (timer == null) {
-      timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      // timer = Timer.periodic(Duration(seconds: 5), (timer) {
         getAsync(true);
-      });
+      // });
     } else {
       if (!(timer!.isActive)) {
-        timer = Timer.periodic(Duration(seconds: 5), (timer) {
+        // timer = Timer.periodic(Duration(seconds: 5), (timer) {
           getAsync(true);
-        });
+        // });
       }
     }
   }

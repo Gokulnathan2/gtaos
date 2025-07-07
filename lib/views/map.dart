@@ -59,6 +59,22 @@ class PlacePolylineBodyState extends State<PlacePolylineBody> {
     if (mounted) setState(() {});
   }
 
+
+void focusMapOnCurrentLocation() async {
+  try {
+    Position position = await getUserCurrentLocation();
+    final GoogleMapController mapController = await completerCon.future;
+    mapController.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 18.0,
+      ),
+    ));
+  } catch (e) {
+    print("Error focusing on current location: $e");
+  }
+}
+
   getLocation() async {
     mrks = {};
     animatedMarker = {};
@@ -171,6 +187,7 @@ class PlacePolylineBodyState extends State<PlacePolylineBody> {
   void _onMapCreated(GoogleMapController controller) {
     this.controller = controller;
     if (!completerCon.isCompleted) completerCon.complete(controller);
+     focusMapOnCurrentLocation();
   }
 
   // created method for getting user current location
@@ -195,6 +212,11 @@ class PlacePolylineBodyState extends State<PlacePolylineBody> {
   Widget build(BuildContext context) {
     return Scaffold(
         drawer: GTAOSDrawer(),
+        floatingActionButton: FloatingActionButton(
+  onPressed: focusMapOnCurrentLocation,
+  child: const Icon(Icons.my_location),
+),
+
         appBar: AppBar(
           leading: searchmode
               ? IconButton(
@@ -224,7 +246,8 @@ class PlacePolylineBodyState extends State<PlacePolylineBody> {
               ? []
               : [
                   IconButton(
-                      onPressed: () {
+                      onPressed
+                      : () {
                         showDatePicker(
                           context: context,
                           initialDate: date!,
